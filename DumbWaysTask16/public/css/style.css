@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap');
+
+* {
+   font-family: 'Quicksand', sans-serif;
+}
+
+a {
+   text-decoration: none !important;
+   /* color: black !important; */
+}
+
+h5 {
+   color: black !important;
+}
+
+/* CONTENT */
+.icon .fa-brands {
+   border: 1px solid black;
+   border-radius: 100%;
+   padding: 10px;
+   font-size: 20px;
+   color: white;
+   background-color: black;
+   margin-right: 20px;
+   cursor: pointer;
+}
+
+.icon .fa-brands:hover {
+   color: black;
+   background-color: white;
+   transition: 0.5s;
+}
+/* CONTENT */
+
+/* PROJECT */
+.card-icon .fa-brands {
+   margin-right: 5px;
+   cursor: pointer;
+}
+/* PROJECT */
+.nav-btn {
+   color: black !important;
+}

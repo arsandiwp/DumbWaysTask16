@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DumbWays | AddProject</title>
+    <link rel="shortcut icon" href="public/img/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="public/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  </head>
+  <body class="bg-body-secondary">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-lg">
+          <a class="navbar-brand" href="/">
+            <img src="public/img/logo.png" alt="brand" width="40">
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link  fw-medium" aria-current="page" href="/">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active fw-medium" href="addproject">Add Project</a>
+              </li>
+            </ul>
+            {{if .DataSession.IsLogin}}
+            <a href="" class="fw-medium me-3 nav-btn">Hello, {{.DataSession.Name}}</a>
+            <form action="/logout" method="post" id="myform"></form>
+            <button onclick="document.getElementById('myform').submit()" class="btn btn-dark fw-medium me-3">Logout</button>
+            {{else}}
+            <a href="/form-register" class="fw-medium me-3 nav-btn">Register</a>
+            <a href="/form-login" class="fw-medium me-3 nav-btn">Login</a>
+            {{end}}
+            <a href="contact" class="btn btn-dark fw-medium">Contact Me</a>
+          </div>
+        </div>
+    </nav>
+    <!-- NAVBAR -->
+
+    <!-- CONTENT  -->
+    <div class="form-input my-5">
+      <div class="container-lg">
+        <h1 class="text-center my-5">ADD MY PROJECT</h1>
+        {{if .DataSession.IsLogin}}
+        <form class="fw-medium w-80 mx-auto" action="/addblog" method="post" enctype="multipart/form-data">
+            <div class="mb-4">
+              <label for="project-name" class="form-label ">Project Name</label>
+              <input type="text" name="project-name" class="form-control focus-ring focus-ring-secondary text-decoration-none border rounded-2" id="project-name">
+            </div>
+            <div class="mb-4">
+                <div class="row">
+                    <div class="col">
+                        <label for="start-date" class="form-label">Start Date</label>
+                        <input type="date" class="form-control focus-ring focus-ring-secondary text-decoration-none border rounded-2" id="start-date" name="start-date" onfocus="(this.type='date')">
+                    </div>
+                    <div class="col">
+                        <label for="end-date" class="form-label">End Date</label>
+                        <input type="date" class="form-control focus-ring focus-ring-secondary text-decoration-none border rounded-2" id="end-date" name="end-date" onfocus="(this.type='date')">
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control focus-ring focus-ring-secondary text-decoration-none border rounded-2" id="description" rows="8" name="description"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="technologies" class="form-label">Technologies</label>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="javascript" id="javascript" name="javascript" >
+                          <label class="form-check-label" for="javascript">
+                            JavaScript
+                          </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="html" id="html" name="html">
+                            <label class="form-check-label" for="html">
+                              HTML
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-10">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="php" id="php" name="php">
+                            <label class="form-check-label" for="php">
+                              PHP
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="react" id="react" name="react">
+                            <label class="form-check-label" for="react ">
+                              React
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-5">
+                <label for="upload-image" class="form-label">Upload Image</label>
+                <input class="form-control focus-ring focus-ring-secondary text-decoration-none border rounded-2" type="file" id="upload-image" name="upload-image">
+            </div>
+            <button type="submit" class="btn btn-dark fw-medium rounded-pill px-5">Submit</button>
+        </form>
+        {{end}}
+      </div>
+    </div>
+    <!-- CONTENT  -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  </body>
+</html>
