@@ -17,6 +17,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// membangung beberapa objek/properties di dalam Blog
 type Blog struct {
 	Id          int
 	Title       string
@@ -32,6 +33,7 @@ type Blog struct {
 	Author      string
 }
 
+// membangun beberapa objek/properties di dalam User
 type User struct {
 	Id       int
 	Name     string
@@ -39,6 +41,7 @@ type User struct {
 	Password string
 }
 
+// membangun beberapa objek/properties di dalam SessionData
 type SessionData struct {
 	IsLogin bool
 	Name    string
@@ -47,15 +50,19 @@ type SessionData struct {
 var userData = SessionData{}
 
 func main() {
+	// konekni Database
 	connection.DatabaseConnect()
 
 	e := echo.New()
 
+	// memnggunakan session dr echo/labstack
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte("session"))))
 
 	e.Static("/public", "public")
 	e.Static("/uploads", "uploads")
 
+	// routing
+	// GET mendapatkan data
 	e.GET("/", home)
 	e.GET("/addproject", addProject)
 	e.GET("/contact", contact)
@@ -64,9 +71,10 @@ func main() {
 	e.GET("form-register", formRegister)
 	e.GET("form-login", formLogin)
 
+	// POST mengirim data
 	e.POST("/addblog", middleware.UploadFiles(addBlog))
 	e.POST("/deleteblog/:id", deleteBlog)
-	e.POST("/updateproject/:id", updateProjectDone)
+	e.POST("/updateproject/:id", middleware.UploadFiles(updateProjectDone))
 	e.POST("/login", login)
 	e.POST("/register", register)
 	e.POST("/logout", logout)
@@ -74,6 +82,7 @@ func main() {
 	e.Logger.Fatal(e.Start("localhost:5000"))
 }
 
+// menampilkan form-register
 func formRegister(c echo.Context) error {
 	var tmpl, err = template.ParseFiles("views/form-register.html")
 
@@ -84,7 +93,9 @@ func formRegister(c echo.Context) error {
 	return tmpl.Execute(c.Response(), nil)
 }
 
+// mengePOST data register
 func register(c echo.Context) error {
+	// untuk memastikan isi permintaan adalah format data, bukan JSON, XML, dll
 	err := c.Request().ParseForm()
 	if err != nil {
 		log.Fatal(err)
@@ -93,8 +104,10 @@ func register(c echo.Context) error {
 	email := c.FormValue("inputEmail")
 	password := c.FormValue("inputPassword")
 
+	// membuat password menjadi acak
 	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
 
+	// point2  yang akan diisi
 	_, err = connection.Conn.Exec(context.Background(), "INSERT INTO tb_user(name, email, password) VALUES ($1, $2, $3)", name, email, passwordHash)
 
 	if err != nil {
@@ -104,6 +117,7 @@ func register(c echo.Context) error {
 	return redirectWithMessage(c, "Register success", true, "/form-login")
 }
 
+// menampilkan form-login
 func formLogin(c echo.Context) error {
 	sess, _ := session.Get("session", c)
 
@@ -125,7 +139,9 @@ func formLogin(c echo.Context) error {
 	return tmpl.Execute(c.Response(), flash)
 }
 
+// mengPOST data login
 func login(c echo.Context) error {
+	// untuk memastikan isi permintaan adalah format data, bukan JSON, XML, dll
 	err := c.Request().ParseForm()
 	if err != nil {
 		log.Fatal(err)
@@ -135,6 +151,7 @@ func login(c echo.Context) error {
 	password := c.FormValue("inputPassword")
 
 	user := User{}
+	// Scan membaca data
 	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_user WHERE email=$1", email).Scan(&user.Id, &user.Name, &user.Email, &user.Password)
 	if err != nil {
 		return redirectWithMessage(c, "Email Incorrect!", false, "/form-login")
@@ -158,6 +175,7 @@ func login(c echo.Context) error {
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
+// mengePOST data logout
 func logout(c echo.Context) error {
 	sess, _ := session.Get("session", c)
 	sess.Options.MaxAge = -1
@@ -258,7 +276,22 @@ func contact(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
-	return tmpl.Execute(c.Response(), nil)
+	sess, _ := session.Get("session", c)
+
+	if sess.Values["isLogin"] != true {
+		userData.IsLogin = false
+	} else {
+		userData.IsLogin = sess.Values["isLogin"].(bool)
+		userData.Name = sess.Values["name"].(string)
+	}
+
+	blogs := map[string]interface{}{
+		"DataSession": userData,
+	}
+
+	sess.Save(c.Request(), c.Response())
+
+	return tmpl.Execute(c.Response(), blogs)
 }
 
 func detailProject(c echo.Context) error {
@@ -386,7 +419,9 @@ func updateProjectDone(c echo.Context) error {
 		react = true
 	}
 
-	_, err := connection.Conn.Exec(context.Background(), "UPDATE tb_project SET title=$1, description=$2, start_date=$3, end_date=$4, javascript=$5, html=$6, php=$7, react=$8, duration=$9 WHERE id=$10", title, description, startDate, endDate, javascript, html, php, react, duration, id)
+	image := c.Get("dataFile").(string)
+
+	_, err := connection.Conn.Exec(context.Background(), "UPDATE tb_project SET title=$1, description=$2, start_date=$3, end_date=$4, javascript=$5, html=$6, php=$7, react=$8, duration=$9, image=$10 WHERE id=$11", title, description, startDate, endDate, javascript, html, php, react, duration, image, id)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
